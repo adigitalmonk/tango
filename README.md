@@ -1,5 +1,12 @@
 # Echo
 
-TCP connection handling.
+A simple tool for accepting TCP connections and handing them off to a dedicated
+process.
 
-TODO: This document.
+## Installation
+
+TBD
+
+## Usage
+
+TBD

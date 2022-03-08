@@ -1,5 +1,5 @@
 defmodule Echo.Controller do
-  use GenServer
+  use GenServer, restart: :transient
   require Logger
 
   @supervisor __MODULE__.DynamicSupervisor
@@ -10,9 +10,13 @@ defmodule Echo.Controller do
 
   def start_link(opts), do: GenServer.start_link(__MODULE__, {:ok, opts})
 
-  def init({:ok, {socket, handler} = opts}) do
+  def init({:ok, opts}) do
+    {:ok, opts, {:continue, :on_connect}}
+  end
+
+  def handle_continue(:on_connect, {socket, handler} = opts) do
     handler.on_connect(socket)
-    {:ok, opts}
+    {:noreply, opts}
   end
 
   def handle_info({:tcp, _port, raw_message}, {socket, handler} = opts) do

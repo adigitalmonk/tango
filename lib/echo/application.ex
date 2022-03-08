@@ -7,21 +7,22 @@ defmodule Echo.Application do
 
   @impl true
   def start(_type, _args) do
-    opts = [strategy: :one_for_one, name: Echo.Supervisor]
-    Supervisor.start_link(children(), opts)
-  end
-
-  def children() do
     port =
       System.get_env("LISTEN_PORT", "4040")
       |> String.to_integer()
 
-    [
-      Echo.Controller.supervisor(),
-      Supervisor.child_spec(
-        {Task, fn -> Echo.accept(port) end},
-        restart: :permanent
-      )
+    echo_opts = [
+      handler: Echo.Demo.Mirror,
+      port: port
     ]
+
+    children = [
+      Echo.Controller.supervisor(),
+      {Task.Supervisor, name: Echo.TaskSupervisor},
+      {Echo, echo_opts}
+    ]
+
+    supervisor_opts = [strategy: :one_for_one, name: Echo.Supervisor]
+    Supervisor.start_link(children, supervisor_opts)
   end
 end
