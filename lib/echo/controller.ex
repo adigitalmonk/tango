@@ -16,6 +16,7 @@ defmodule Echo.Controller do
 
   def init({:ok, {port, handler}}) do
     state = %Socket{
+      id: make_ref(),
       port: port,
       handler: handler,
       assigns: %{}

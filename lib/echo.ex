@@ -1,35 +1,24 @@
 defmodule Echo do
-  use GenServer, restart: :permanent
+  use Supervisor
 
-  defp put_defaults(opts) do
-    opts
-    |> Keyword.put_new(:handler, Echo.Demo.Reverse)
-    |> Keyword.put_new(:packet, :line)
-    |> Keyword.put_new(:port, 4040)
+  def start_link(opts \\ []) do
+    Supervisor.start_link(__MODULE__, opts, name: __MODULE__)
   end
 
-  def start_link(opts) do
-    opts = put_defaults(opts)
-    GenServer.start_link(__MODULE__, opts)
-  end
-
+  @impl true
   def init(opts) do
-    {:ok, opts, {:continue, :start}}
-  end
+    port = Application.get_env(:echo, :port, 4040)
+    handler = Application.get_env(:echo, :handler, Echo.Demo.KV)
 
-  def handle_continue(:start, opts) do
-    handler = opts[:handler] || Echo.Demo.Reverse
-    packet = opts[:packet] || :line
-    port = opts[:port] || 4040
-    pool_size = opts[:pool_size] || 10
+    echo_opts = [handler: handler, port: port]
 
-    listen_conf = [:binary, packet: packet, active: true, reuseaddr: true]
-    {:ok, socket} = :gen_tcp.listen(port, listen_conf)
+    children = [
+      Echo.Controller.supervisor(),
+      {Task.Supervisor, name: Echo.TaskSupervisor},
+      {Echo.Core, echo_opts}
+    ]
 
-    Enum.each(0..pool_size, fn _ ->
-      Echo.Acceptor.start(socket, handler)
-    end)
-
-    {:noreply, opts}
+    supervisor_opts = Keyword.merge(opts, strategy: :one_for_one, name: Echo.Supervisor)
+    Supervisor.init(children, supervisor_opts)
   end
 end
