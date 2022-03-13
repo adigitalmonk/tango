@@ -7,12 +7,11 @@ defmodule Echo.Application do
 
   @impl true
   def start(_type, _args) do
-    port =
-      System.get_env("LISTEN_PORT", "4040")
-      |> String.to_integer()
+    port = Application.get_env(:echo, :port, 4040)
+    handler = Application.get_env(:echo, :handler, Echo.Demo.KV)
 
     echo_opts = [
-      handler: Echo.Demo.Mirror,
+      handler: handler,
       port: port
     ]
 

@@ -1,25 +1,17 @@
 defmodule Echo.Demo.Mirror do
   use Echo.Handler
 
-  def on_connect(socket) do
-    respond("... Connected!\n", socket)
-  end
+  def on_connect(socket), do: {:reply, "... Connected!", socket}
+  def on_exit(socket), do: {:reply, "... Closing!", socket}
 
-  def on_exit(socket) do
-    respond("... Closing!\n", socket)
-  end
+  def handle_message(<<"exit", _::binary>>, socket), do: {:exit, socket}
+  def handle_message(<<"skip", _::binary>>, socket), do: {:noreply, socket}
 
-  def handle(raw, socket) do
-    raw
-    |> String.trim()
-    |> case do
-      <<"exit", _::binary>> ->
-        :close
+  def handle_message(<<"magic", _::binary>>, socket),
+    do: {:reply_exit, "This is a magic free zone!", socket}
 
-      message ->
-        message
-        |> Kernel.<>("\n")
-        |> respond(socket)
-    end
-  end
+  def handle_message(<<"reverse|", rest::binary>>, socket),
+    do: {:reply, String.reverse(rest), socket}
+
+  def handle_message(message, socket), do: {:reply, message <> "", socket}
 end

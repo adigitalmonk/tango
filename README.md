@@ -1,7 +1,7 @@
 # Echo
 
-A simple tool for accepting TCP connections and handing them off to a dedicated
-process.
+A simple tool for accepting TCP connections and handing them off to a connection
+handler.
 
 ## Installation
 

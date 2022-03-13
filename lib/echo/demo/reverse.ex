@@ -2,20 +2,19 @@ defmodule Echo.Demo.Reverse do
   use Echo.Handler
 
   def on_connect(socket) do
-    respond("... Send me some text\n", socket)
+    {:reply, "... Send me some text", socket}
   end
 
-  def on_exit(_socket) do
-    :ok
+  def on_exit(socket) do
+    {:reply, "Have a nice day!", socket}
   end
 
-  def handle(raw, socket) do
-    raw
-    |> String.trim()
-    |> String.reverse()
-    |> Kernel.<>("\n")
-    |> respond(socket)
+  def handle_message(message, socket) do
+    response =
+      message
+      |> String.trim()
+      |> String.reverse()
 
-    :close
+    {:reply_exit, response, socket}
   end
 end
