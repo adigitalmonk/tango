@@ -5,6 +5,9 @@ defmodule Echo.Controller do
   alias Echo.Socket
 
   @supervisor __MODULE__.DynamicSupervisor
+  @spec supervisor ::
+          {DynamicSupervisor,
+           [{:name, Echo.Controller.DynamicSupervisor} | {:strategy, :one_for_one}, ...]}
   def supervisor,
     do: {DynamicSupervisor, strategy: :one_for_one, name: @supervisor}
 
@@ -15,13 +18,7 @@ defmodule Echo.Controller do
     do: GenServer.start_link(__MODULE__, {:ok, opts})
 
   def init({:ok, {port, handler}}) do
-    state = %Socket{
-      id: make_ref(),
-      port: port,
-      handler: handler,
-      assigns: %{}
-    }
-
+    state = Socket.new(port, handler)
     {:ok, state, {:continue, :on_connect}}
   end
 

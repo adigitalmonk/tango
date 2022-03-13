@@ -24,12 +24,7 @@ defmodule Echo.Handler do
     end
   end
 
-  def assign(socket, assigns) when is_map(assigns),
-    do: %{socket | assigns: Map.merge(socket.assigns, assigns)}
-
-  def assign(socket, key, value),
-    do: %{socket | assigns: Map.put(socket.assigns, key, value)}
-
-  def unassign(socket, key),
-    do: %{socket | assigns: Map.drop(socket.assigns, [key])}
+  defdelegate assign(socket, assigns), to: Socket
+  defdelegate assign(socket, key, value), to: Socket
+  defdelegate unassign(socket, key), to: Socket
 end

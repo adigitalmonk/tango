@@ -2,10 +2,13 @@ defmodule Echo.Acceptor do
   alias Echo.Controller
   require Logger
 
+  @supervisor __MODULE__.TaskSupervisor
+  def supervisor, do: {Task.Supervisor, name: @supervisor}
+
   def start(socket, handler) do
     {:ok, _pid} =
       Task.Supervisor.start_child(
-        Echo.TaskSupervisor,
+        @supervisor,
         fn -> Echo.Acceptor.listen(socket, handler) end,
         restart: :transient
       )
