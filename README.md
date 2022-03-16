@@ -9,4 +9,31 @@ TBD
 
 ## Usage
 
-TBD
+Configuration Options
+
+```elixir
+defmodule MyApp.MyEcho do
+    use Echo, 
+        port: 4040,
+        handler: Echo.Demo.KV
+        packet: :line
+        pool_size: 5
+end
+```
+
+Pass in configuration via...
+
+- <https://hexdocs.pm/elixir/1.12/Supervisor.html#init/2>
+
+```elixir
+def start(_type, _args) do
+    children = [
+        MyApp.MyEcho
+    ]
+
+    # See https://hexdocs.pm/elixir/Supervisor.html
+    # for other strategies and supported options
+    opts = [strategy: :one_for_one, name: MyApp.Supervisor]
+    Supervisor.start_link(children, opts)
+end
+```
