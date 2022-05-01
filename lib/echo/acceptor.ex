@@ -9,8 +9,8 @@ defmodule Echo.Acceptor do
     {:ok, _pid} =
       Task.Supervisor.start_child(
         @supervisor,
-        fn -> Echo.Acceptor.listen(socket, handler) end,
-        restart: :transient
+        fn -> listen(socket, handler) end,
+        restart: :temporary
       )
   end
 

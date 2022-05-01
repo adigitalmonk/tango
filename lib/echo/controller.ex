@@ -34,8 +34,8 @@ defmodule Echo.Controller do
   end
 
   @spec handle_response(response :: Echo.Handler.no_reply()) :: {:noreply, Socket.t()}
-  def handle_response({:noreply, state}) do
-    {:noreply, state}
+  def handle_response({:noreply, socket}) do
+    {:noreply, socket}
   end
 
   @spec handle_response(response :: Echo.Handler.reply()) :: {:noreply, Socket.t()}
