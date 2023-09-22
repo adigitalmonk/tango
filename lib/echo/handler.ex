@@ -4,7 +4,7 @@ defmodule Echo.Handler do
   @type reply :: {:reply, binary(), Socket.t()}
   @type no_reply :: {:noreply, Socket.t()}
   @type finish ::
-          {:reply_exit, binary(), Socket.t()}
+          {:exit, binary(), Socket.t()}
           | {:exit, Socket.t()}
 
   @callback on_connect(socket :: Socket.t()) :: reply | no_reply | finish

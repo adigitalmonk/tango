@@ -8,7 +8,7 @@ defmodule Echo.Demo.Mirror do
   def handle_message(<<"skip", _::binary>>, socket), do: {:noreply, socket}
 
   def handle_message(<<"magic", _::binary>>, socket),
-    do: {:reply_exit, "This is a magic free zone!", socket}
+    do: {:exit, "This is a magic free zone!", socket}
 
   def handle_message(<<"reverse|", rest::binary>>, socket),
     do: {:reply, String.reverse(rest), socket}

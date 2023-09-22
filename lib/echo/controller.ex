@@ -5,9 +5,6 @@ defmodule Echo.Controller do
   alias Echo.Socket
 
   @supervisor __MODULE__.DynamicSupervisor
-  @spec supervisor ::
-          {DynamicSupervisor,
-           [{:name, Echo.Controller.DynamicSupervisor} | {:strategy, :one_for_one}, ...]}
   def supervisor,
     do: {DynamicSupervisor, strategy: :one_for_one, name: @supervisor}
 
@@ -33,6 +30,10 @@ defmodule Echo.Controller do
     |> handle_response()
   end
 
+  def handle_info({:tcp_closed, _port}, socket) do
+    handle_exit(socket)
+  end
+
   @spec handle_response(response :: Echo.Handler.no_reply()) :: {:noreply, Socket.t()}
   def handle_response({:noreply, socket}) do
     {:noreply, socket}
@@ -47,7 +48,7 @@ defmodule Echo.Controller do
   end
 
   @spec handle_response(response :: Echo.Handler.finish()) :: {:stop, :shutdown, Socket.t()}
-  def handle_response({:reply_exit, response, %{port: port} = socket}) do
+  def handle_response({:exit, response, %{port: port} = socket}) do
     :gen_tcp.send(port, response)
     handle_exit(socket)
   end

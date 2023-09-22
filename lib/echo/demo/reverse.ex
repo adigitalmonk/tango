@@ -15,6 +15,6 @@ defmodule Echo.Demo.Reverse do
       |> String.trim()
       |> String.reverse()
 
-    {:reply_exit, response, socket}
+    {:exit, response, socket}
   end
 end
