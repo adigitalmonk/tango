@@ -8,15 +8,14 @@ defmodule Echo.Controller do
   def supervisor,
     do: {DynamicSupervisor, strategy: :one_for_one, name: @supervisor}
 
-  def start(socket, handler),
-    do: DynamicSupervisor.start_child(@supervisor, {__MODULE__, {socket, handler}})
+  def start(socket),
+    do: DynamicSupervisor.start_child(@supervisor, {__MODULE__, socket})
 
   def start_link(opts),
     do: GenServer.start_link(__MODULE__, {:ok, opts})
 
-  def init({:ok, {port, handler}}) do
-    state = Socket.new(port, handler)
-    {:ok, state, {:continue, :on_connect}}
+  def init({:ok, socket}) do
+    {:ok, socket, {:continue, :on_connect}}
   end
 
   def handle_continue(:on_connect, %{handler: handler} = socket) do
@@ -32,6 +31,11 @@ defmodule Echo.Controller do
 
   def handle_info({:tcp_closed, _port}, socket) do
     handle_exit(socket)
+  end
+
+  def handle_info(message, %{handler: handler} = socket) do
+    handler.handle_info(message, socket)
+    |> handle_response()
   end
 
   @spec handle_response(response :: Echo.Handler.no_reply()) :: {:noreply, Socket.t()}

@@ -1,5 +1,4 @@
 defmodule Echo do
-  # Is this the right approach?
   defmacro __using__(opts) do
     server_port = Keyword.get(opts, :port, 4040)
     connection_handler = Keyword.get(opts, :handler, Echo.Demo.KV)
