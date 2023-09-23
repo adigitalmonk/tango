@@ -23,8 +23,7 @@ Configuration Options
 defmodule MyApp.MyEcho do
     use Echo, 
         port: 4040,
-        handler: Echo.Demo.KV
-        packet: :line
+        handler: Echo.Demo.KV,
         pool_size: 5
 end
 ```
