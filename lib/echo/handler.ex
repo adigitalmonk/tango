@@ -3,14 +3,14 @@ defmodule Echo.Handler do
 
   @type reply :: {:reply, binary(), Socket.t()}
   @type no_reply :: {:noreply, Socket.t()}
-  @type finish ::
-          {:exit, binary(), Socket.t()}
-          | {:exit, Socket.t()}
+  @type finish :: {:exit, binary(), Socket.t()} | {:exit, Socket.t()}
 
   @callback on_connect(socket :: Socket.t()) :: reply | no_reply | finish
   @callback on_exit(socket :: Socket.t()) :: reply | no_reply | finish
-  @callback handle_message(payload :: binary(), socket :: Socket.t()) ::
-              reply | no_reply | finish
+  @callback handle_message(payload :: binary(), socket :: Socket.t()) :: reply | no_reply | finish
+
+  @callback serialize(binary()) :: term()
+  @callback deserialize(term()) :: binary() | {:error, term()}
 
   defmacro __using__(_) do
     quote do

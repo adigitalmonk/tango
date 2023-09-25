@@ -1,5 +1,5 @@
 defmodule Echo.Controller do
-  use GenServer, restart: :transient
+  use GenServer, restart: :temporary
   require Logger
 
   alias Echo.Socket
@@ -23,10 +23,21 @@ defmodule Echo.Controller do
     |> handle_response()
   end
 
-  def handle_info({:tcp, _port, raw_message}, %{handler: handler} = socket) do
+  def handle_info({:tcp, port, raw_message}, %{handler: handler} = socket) do
     handler.deserialize(raw_message)
-    |> handler.handle_message(socket)
-    |> handle_response()
+    |> case do
+      {:error, reason} ->
+        Logger.error(
+          "#{inspect(port)} Error | Deserialize | #{inspect(raw_message)} | #{inspect(reason)}"
+        )
+
+        handle_response({:noreply, socket})
+
+      message ->
+        message
+        |> handler.handle_message(socket)
+        |> handle_response()
+    end
   end
 
   def handle_info({:tcp_closed, _port}, socket) do

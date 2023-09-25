@@ -44,3 +44,22 @@ def start(_type, _args) do
     Supervisor.start_link(children, opts)
 end
 ```
+
+### Serialization / Deserialization
+
+By default, Echo will serialize only strings and will simply append a `\n`.
+The default deserialization will take the payload and `String.trim/1` any whitespace.
+You can replace this behavior easily in your handler by overriding the default methods.
+
+- `serialize/1` should receive a message to send back to the client and format it appropriately.
+
+- `deserialize/1` should receive a raw message from the client and then marshal it for the application.
+ - You can also return an error tuple `{:error, reason}` from `deserialize/1`.
+ - This will not respond to the client, but will display an error log in the server's console.
+
+```elixir
+defmodule MyApp.MyHandler do
+  def serialize(message), do: Jason.encode!(message) <> "\n"
+  def deserialize(message), do: message |> String.trim() |> Jason.decode()
+end
+```
