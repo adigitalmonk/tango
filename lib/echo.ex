@@ -15,12 +15,14 @@ defmodule Echo do
 
       @impl true
       def init(opts) do
-        echo_opts = [
-          handler: unquote(connection_handler),
-          port: unquote(server_port),
-          packet: unquote(packet_type),
-          pool_size: unquote(pool_size)
-        ]
+        echo_opts =
+          [
+            handler: unquote(connection_handler),
+            port: unquote(server_port),
+            packet: unquote(packet_type),
+            pool_size: unquote(pool_size)
+          ]
+          |> Keyword.merge(opts)
 
         children = [
           Echo.Controller.supervisor(),
@@ -28,9 +30,7 @@ defmodule Echo do
           {Echo.Core, echo_opts}
         ]
 
-        supervisor_opts = Keyword.merge([strategy: :one_for_one], opts)
-
-        Supervisor.init(children, supervisor_opts)
+        Supervisor.init(children, strategy: :one_for_one)
       end
     end
   end
