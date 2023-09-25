@@ -9,8 +9,8 @@ defmodule Echo.Handler do
   @callback on_exit(socket :: Socket.t()) :: reply | no_reply | finish
   @callback handle_message(payload :: binary(), socket :: Socket.t()) :: reply | no_reply | finish
 
-  @callback serialize(binary()) :: term()
-  @callback deserialize(term()) :: binary() | {:error, term()}
+  @callback serialize(term()) :: term()
+  @callback deserialize(term()) :: term() | {:error, term()}
 
   defmacro __using__(_) do
     quote do
