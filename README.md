@@ -10,7 +10,7 @@ Echo is in alpha. If you wanna try it out though, you can install it via git:
 ```elixir
   def deps do
     [
-        {:echo, github: "adigitalmonk/echo", branch: "master"}
+        {:echo, github: "adigitalmonk/echo", branch: "main"}
     ]
   end
 ```
