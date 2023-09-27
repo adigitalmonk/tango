@@ -1,5 +1,6 @@
 defmodule Echo.Core do
   use GenServer, restart: :permanent
+  require Logger
 
   defp put_defaults(opts) do
     opts
@@ -24,11 +25,13 @@ defmodule Echo.Core do
     pool_size = opts[:pool_size] || 10
 
     listen_conf = [:binary, packet: packet, active: true, reuseaddr: true]
-    {:ok, socket} = :gen_tcp.listen(port, listen_conf)
+    {:ok, tcp_listener} = :gen_tcp.listen(port, listen_conf)
 
     Enum.each(0..pool_size, fn _ ->
-      Echo.Acceptor.start(socket, handler)
+      Echo.Acceptor.start(tcp_listener, handler)
     end)
+
+    Logger.debug("Started #{pool_size} listeners on port #{port}")
 
     {:noreply, opts}
   end

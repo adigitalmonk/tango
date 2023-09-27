@@ -5,24 +5,24 @@ defmodule Echo.Acceptor do
   @supervisor __MODULE__.TaskSupervisor
   def supervisor, do: {Task.Supervisor, name: @supervisor}
 
-  def start(listen_socket, handler) do
+  def start(tcp_listener, handler) do
     {:ok, _pid} =
       Task.Supervisor.start_child(
         @supervisor,
-        fn -> listen(listen_socket, handler) end,
+        fn -> listen(tcp_listener, handler) end,
         restart: :temporary
       )
   end
 
-  def listen(listen_socket, handler) do
-    listen_socket
+  def listen(tcp_listener, handler) do
+    tcp_listener
     |> :gen_tcp.accept()
     |> case do
       {:ok, port} -> hand_off(port, handler)
       {:error, reason} -> Logger.error("Couldn't open socket: #{inspect(reason)}")
     end
 
-    listen(listen_socket, handler)
+    listen(tcp_listener, handler)
   end
 
   def hand_off(port, handler) do
