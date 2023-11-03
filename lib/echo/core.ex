@@ -27,7 +27,7 @@ defmodule Echo.Core do
     listen_conf = [:binary, packet: packet, active: true, reuseaddr: true]
     {:ok, tcp_listener} = :gen_tcp.listen(port, listen_conf)
 
-    Enum.each(0..pool_size, fn _ ->
+    Enum.each(1..pool_size, fn _ ->
       Echo.Acceptor.start(tcp_listener, handler)
     end)
 
