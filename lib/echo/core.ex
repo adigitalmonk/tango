@@ -2,6 +2,13 @@ defmodule Echo.Core do
   use GenServer, restart: :permanent
   require Logger
 
+  @listen_defaults [
+    :binary,
+    packet: :line,
+    active: true,
+    reuseaddr: true
+  ]
+
   defp put_defaults(opts) do
     opts
     |> Keyword.put_new(:handler, Echo.Demo.Reverse)
@@ -20,11 +27,13 @@ defmodule Echo.Core do
 
   def handle_continue(:start, opts) do
     handler = opts[:handler] || Echo.Demo.Reverse
-    packet = opts[:packet] || :line
     port = opts[:port] || 4040
     pool_size = opts[:pool_size] || 10
 
-    listen_conf = [:binary, packet: packet, active: true, reuseaddr: true]
+    listen_conf =
+      @listen_defaults
+      |> Keyword.merge((opts[:listen_conf] || []))
+
     {:ok, tcp_listener} = :gen_tcp.listen(port, listen_conf)
 
     Enum.each(1..pool_size, fn _ ->

@@ -24,7 +24,7 @@ defmodule Echo.Controller do
   end
 
   def handle_info({:tcp, port, raw_message}, %{handler: handler} = socket) do
-    handler.deserialize(raw_message)
+    handler.handle_in(raw_message)
     |> case do
       {:error, reason} ->
         Logger.error(
@@ -56,7 +56,7 @@ defmodule Echo.Controller do
 
   @spec handle_response(response :: Echo.Handler.reply()) :: {:noreply, Socket.t()}
   def handle_response({:reply, message, %{handler: handler, port: port} = socket}) do
-    message = handler.serialize(message)
+    message = handler.handle_out(message)
     :gen_tcp.send(port, message)
 
     {:noreply, socket}

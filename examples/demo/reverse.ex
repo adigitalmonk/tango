@@ -1,4 +1,8 @@
 defmodule Echo.Demo.Reverse do
+  @moduledoc """
+  A demo Echo handler that accepts a string, reverses it,
+  sends it back, the closes the connection.
+  """
   use Echo.Handler
 
   def on_connect(socket) do

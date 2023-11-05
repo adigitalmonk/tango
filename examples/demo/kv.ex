@@ -1,4 +1,7 @@
 defmodule Echo.Demo.KV do
+  @moduledoc """
+  A demo Echo handler that acts like a key/value server
+  """
   use Echo.Handler
 
   def on_connect(socket) do

@@ -1,4 +1,7 @@
 defmodule Echo.Demo.Mirror do
+  @moduledoc """
+  A demo Echo handler that accepts some simple commands
+  """
   use Echo.Handler
 
   def on_connect(socket), do: {:reply, "... Connected!", socket}
@@ -13,5 +16,5 @@ defmodule Echo.Demo.Mirror do
   def handle_message(<<"reverse|", rest::binary>>, socket),
     do: {:reply, String.reverse(rest), socket}
 
-  def handle_message(message, socket), do: {:reply, message <> "", socket}
+  def handle_message(message, socket), do: {:reply, message, socket}
 end

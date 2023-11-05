@@ -1,7 +1,6 @@
 # Echo
 
-A simple tool for accepting TCP connections and handing them off to a connection
-handler.
+A simple tool for accepting TCP connections and handing them off to a provided connection handler.
 
 ## Installation
 
@@ -28,9 +27,9 @@ defmodule MyApp.MyEcho do
 end
 ```
 
-Pass in configuration via...
+Pass in configuration via the child_spec.
 
-- <https://hexdocs.pm/elixir/1.12/Supervisor.html#init/2>
+// To Do
 
 ```elixir
 def start(_type, _args) do
@@ -45,21 +44,37 @@ def start(_type, _args) do
 end
 ```
 
+### Listener Pool
+
+// To Do
+
+
 ### Serialization / Deserialization
 
 By default, Echo will serialize only strings and will simply append a `\n`.
 The default deserialization will take the payload and `String.trim/1` any whitespace.
 You can replace this behavior easily in your handler by overriding the default methods.
 
-- `serialize/1` should receive a message to send back to the client and format it appropriately.
+- `handle_out/1` should receive a message to send back to the client and format it appropriately.
 
-- `deserialize/1` should receive a raw message from the client and then marshal it for the application.
- - You can also return an error tuple `{:error, reason}` from `deserialize/1`.
+- `handle_in/1` should receive a raw message from the client and then marshal it for the application.
+ - You can also return an error tuple `{:error, reason}` from `handle_in/1`.
  - This will not respond to the client, but will display an error log in the server's console.
 
 ```elixir
 defmodule MyApp.MyHandler do
-  def serialize(message), do: Jason.encode!(message) <> "\n"
-  def deserialize(message), do: message |> String.trim() |> Jason.decode()
+  # ...
+
+  def handle_out(message) do
+    Jason.encode!(message) <> "\n"
+  end
+
+  def handle_in(message) do
+    message
+    |> String.trim()
+    |> Jason.decode()
+  end
+
+  # ...
 end
 ```

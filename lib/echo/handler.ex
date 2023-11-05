@@ -9,18 +9,18 @@ defmodule Echo.Handler do
   @callback on_exit(socket :: Socket.t()) :: reply | no_reply | finish
   @callback handle_message(payload :: binary(), socket :: Socket.t()) :: reply | no_reply | finish
 
-  @callback serialize(term()) :: term()
-  @callback deserialize(term()) :: term() | {:error, term()}
+  @callback handle_out(term()) :: term()
+  @callback handle_in(term()) :: term() | {:error, term()}
 
   defmacro __using__(_) do
     quote do
       @behaviour Echo.Handler
       import Echo.Handler
 
-      def serialize(message), do: message <> "\n"
-      def deserialize(message), do: String.trim(message)
+      def handle_in(message), do: String.trim(message)
+      def handle_out(message), do: message <> "\n"
 
-      defoverridable serialize: 1, deserialize: 1
+      defoverridable handle_out: 1, handle_in: 1
     end
   end
 
