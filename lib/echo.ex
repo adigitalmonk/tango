@@ -1,7 +1,7 @@
 defmodule Echo do
   defmacro __using__(opts) do
     server_port = Keyword.get(opts, :port, 4040)
-    connection_handler = Keyword.get(opts, :handler, Echo.Demo.KV)
+    connection_handler = Keyword.get(opts, :handler) || raise "Missing required Handler"
     packet_type = Keyword.get(opts, :packet, :line)
     pool_size = Keyword.get(opts, :pool_size, 1)
 
@@ -23,14 +23,16 @@ defmodule Echo do
         ]
 
         children = [
-          Echo.Controller.supervisor(),
-          Echo.Acceptor.supervisor(),
+          Echo.Controller.DynamicSupervisor,
+          {Task.Supervisor, name: Echo.Acceptor.TaskSupervisor},
           {Echo.Core, echo_opts}
         ]
 
-        supervisor_opts = [
-          strategy: :one_for_one
-        ] |> Keyword.merge(opts)
+        supervisor_opts =
+          [
+            strategy: :one_for_one
+          ]
+          |> Keyword.merge(opts)
 
         Supervisor.init(children, supervisor_opts)
       end

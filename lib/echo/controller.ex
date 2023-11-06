@@ -1,37 +1,32 @@
 defmodule Echo.Controller do
   use GenServer, restart: :temporary
+  alias Echo.Socket
   require Logger
 
-  alias Echo.Socket
+  defdelegate start(socket),
+    to: Echo.Controller.DynamicSupervisor
 
-  @supervisor __MODULE__.DynamicSupervisor
-  def supervisor,
-    do: {DynamicSupervisor, strategy: :one_for_one, name: @supervisor}
+  def start_link(socket) do
+    GenServer.start_link(__MODULE__, socket)
+  end
 
-  def start(socket),
-    do: DynamicSupervisor.start_child(@supervisor, {__MODULE__, socket})
-
-  def start_link(opts),
-    do: GenServer.start_link(__MODULE__, {:ok, opts})
-
-  def init({:ok, socket}) do
+  def init(socket) do
     {:ok, socket, {:continue, :on_connect}}
   end
 
   def handle_continue(:on_connect, %{handler: handler} = socket) do
-    handler.on_connect(socket)
+    socket
+    |> handler.on_connect()
     |> handle_response()
   end
 
   def handle_info({:tcp, port, raw_message}, %{handler: handler} = socket) do
-    handler.handle_in(raw_message)
+    raw_message
+    |> handler.handle_in()
     |> case do
-      {:error, reason} ->
-        Logger.error(
-          "#{inspect(port)} Error | Deserialize | #{inspect(raw_message)} | #{inspect(reason)}"
-        )
-
-        handle_response({:noreply, socket})
+      {:error, error} ->
+        Logger.error("#{inspect(port)} Decode/#{inspect(error)} :: #{inspect(raw_message)}")
+        {:noreply, socket}
 
       message ->
         message
@@ -40,12 +35,14 @@ defmodule Echo.Controller do
     end
   end
 
-  def handle_info({:tcp_closed, _port}, socket) do
+  def handle_info({:tcp_closed, port}, socket) do
+    Logger.debug("-> Closed: #{inspect(port)}")
     handle_exit(socket)
   end
 
   def handle_info(message, %{handler: handler} = socket) do
-    handler.handle_info(message, socket)
+    message
+    |> handler.handle_info(socket)
     |> handle_response()
   end
 
@@ -57,6 +54,9 @@ defmodule Echo.Controller do
   @spec handle_response(response :: Echo.Handler.reply()) :: {:noreply, Socket.t()}
   def handle_response({:reply, message, %{handler: handler, port: port} = socket}) do
     message = handler.handle_out(message)
+
+    # This could fail, but if it does it's probably
+    # because the port closed and there's a handle_info for that
     :gen_tcp.send(port, message)
 
     {:noreply, socket}
@@ -73,7 +73,8 @@ defmodule Echo.Controller do
   end
 
   def handle_exit(%{handler: handler} = socket) do
-    handler.on_exit(socket)
+    socket
+    |> handler.on_exit()
     |> handle_response()
 
     {:stop, :shutdown, socket}

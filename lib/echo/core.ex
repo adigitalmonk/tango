@@ -10,10 +10,7 @@ defmodule Echo.Core do
   ]
 
   defp put_defaults(opts) do
-    opts
-    |> Keyword.put_new(:handler, Echo.Demo.Reverse)
-    |> Keyword.put_new(:packet, :line)
-    |> Keyword.put_new(:port, 4040)
+    Keyword.put_new(opts, :port, 2323)
   end
 
   def start_link(opts) do
@@ -26,21 +23,22 @@ defmodule Echo.Core do
   end
 
   def handle_continue(:start, opts) do
-    handler = opts[:handler] || Echo.Demo.Reverse
-    port = opts[:port] || 4040
-    pool_size = opts[:pool_size] || 10
+    handler = opts[:handler] || raise "??"
+    port = opts[:port]
+    pool_size = opts[:pool_size] || 1
 
     listen_conf =
-      @listen_defaults
-      |> Keyword.merge((opts[:listen_conf] || []))
+      Keyword.merge(@listen_defaults, opts[:listen_conf] || [])
 
     {:ok, tcp_listener} = :gen_tcp.listen(port, listen_conf)
 
-    Enum.each(1..pool_size, fn _ ->
-      Echo.Acceptor.start(tcp_listener, handler)
-    end)
+    Echo.Acceptor.TaskSupervisor.start_pool(
+      pool_size,
+      tcp_listener,
+      handler
+    )
 
-    Logger.debug("Started #{pool_size} listeners on port #{port}")
+    Logger.debug("Started #{pool_size} listeners on port #{inspect(port)}")
 
     {:noreply, opts}
   end

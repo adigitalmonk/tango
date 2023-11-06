@@ -1,18 +1,6 @@
 defmodule Echo.Acceptor do
-  alias Echo.{Socket, Controller}
+  alias Echo.{Controller, Socket}
   require Logger
-
-  @supervisor __MODULE__.TaskSupervisor
-  def supervisor, do: {Task.Supervisor, name: @supervisor}
-
-  def start(tcp_listener, handler) do
-    {:ok, _pid} =
-      Task.Supervisor.start_child(
-        @supervisor,
-        fn -> listen(tcp_listener, handler) end,
-        restart: :temporary
-      )
-  end
 
   def listen(tcp_listener, handler) do
     tcp_listener
@@ -30,9 +18,7 @@ defmodule Echo.Acceptor do
 
     with {:ok, pid} <- Controller.start(socket),
          :ok <- :gen_tcp.controlling_process(port, pid) do
-      Logger.debug(
-        "[#{inspect(self())}] Started Controller->#{inspect(pid)} for Port->#{inspect(port)}"
-      )
+      Logger.debug("#{inspect(self())} Start/Controller->#{inspect(pid)}/Port->#{inspect(port)}")
     else
       _ -> Logger.error("Could not start controller for #{inspect(port)}")
     end
