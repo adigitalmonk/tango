@@ -17,10 +17,13 @@ defmodule Echo.Handler do
       @behaviour Echo.Handler
       import Echo.Handler
 
+      def on_connect(socket), do: {:noreply, socket}
+      def on_exit(socket), do: {:noreply, socket}
       def handle_in(message), do: String.trim(message)
       def handle_out(message), do: message <> "\n"
+      def handle_message(_message, socket), do: {:noreply, socket}
 
-      defoverridable handle_out: 1, handle_in: 1
+      defoverridable on_connect: 1, on_exit: 1, handle_out: 1, handle_in: 1, handle_message: 2
     end
   end
 
