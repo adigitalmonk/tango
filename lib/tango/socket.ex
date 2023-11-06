@@ -1,4 +1,4 @@
-defmodule Echo.Socket do
+defmodule Tango.Socket do
   @type t :: %__MODULE__{}
   defstruct [:id, :port, :handler, :assigns]
 

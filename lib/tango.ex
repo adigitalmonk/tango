@@ -1,4 +1,4 @@
-defmodule Echo do
+defmodule Tango do
   defmacro __using__(opts) do
     server_port = Keyword.get(opts, :port, 4040)
     connection_handler = Keyword.get(opts, :handler) || raise "Missing required Handler"
@@ -15,7 +15,7 @@ defmodule Echo do
 
       @impl true
       def init(opts) do
-        echo_opts = [
+        tango_opts = [
           handler: unquote(connection_handler),
           port: unquote(server_port),
           packet: unquote(packet_type),
@@ -23,9 +23,9 @@ defmodule Echo do
         ]
 
         children = [
-          Echo.Controller.DynamicSupervisor,
-          {Task.Supervisor, name: Echo.Acceptor.TaskSupervisor},
-          {Echo.Core, echo_opts}
+          Tango.Controller.DynamicSupervisor,
+          {Task.Supervisor, name: Tango.Acceptor.TaskSupervisor},
+          {Tango.Core, tango_opts}
         ]
 
         supervisor_opts =

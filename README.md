@@ -1,15 +1,15 @@
-# Echo
+# Tango 💃
 
 A simple tool for accepting TCP connections and handing them off to a provided connection handler.
 
 ## Installation
 
-Echo is in alpha. If you wanna try it out though, you can install it via git:
+Tango is in alpha. If you wanna try it out though, you can install it via git:
 
 ```elixir
   def deps do
     [
-        {:echo, github: "adigitalmonk/echo", branch: "main"}
+        {:tango, github: "adigitalmonk/tango", branch: "main"}
     ]
   end
 ```
@@ -19,11 +19,11 @@ Echo is in alpha. If you wanna try it out though, you can install it via git:
 Configuration Options
 
 ```elixir
-defmodule MyApp.MyEcho do
-    use Echo, 
-        port: 4040,
-        handler: Echo.Demo.KV,
-        pool_size: 5
+defmodule MyApp.MyTango do
+  use Tango,
+    port: 4040,
+    handler: Tango.Demo.KV,
+    pool_size: 5
 end
 ```
 
@@ -34,7 +34,7 @@ Pass in configuration via the child_spec.
 ```elixir
 def start(_type, _args) do
     children = [
-        MyApp.MyEcho
+        MyApp.MyTango
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
@@ -51,7 +51,7 @@ end
 
 ### Serialization / Deserialization
 
-By default, Echo will serialize only strings and will simply append a `\n`.
+By default, Tango will serialize only strings and will simply append a `\n`.
 The default deserialization will take the payload and `String.trim/1` any whitespace.
 You can replace this behavior easily in your handler by overriding the default methods.
 

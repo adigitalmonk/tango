@@ -1,6 +1,6 @@
-defmodule Echo.HandlerTest do
+defmodule Tango.HandlerTest do
   use ExUnit.Case, async: true
-  alias Echo.Socket
+  alias Tango.Socket
 
   describe "sockets and their unique ids" do
     test "are always unique" do

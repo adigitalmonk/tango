@@ -1,8 +1,8 @@
-defmodule Echo.Demo.Mirror do
+defmodule Tango.Demo.Mirror do
   @moduledoc """
-  A demo Echo handler that accepts some simple commands
+  A demo Tango handler that accepts some simple commands
   """
-  use Echo.Handler
+  use Tango.Handler
 
   def on_connect(socket), do: {:reply, "... Connected!", socket}
   def on_exit(socket), do: {:reply, "... Closing!", socket}

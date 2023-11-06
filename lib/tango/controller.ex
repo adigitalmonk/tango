@@ -1,10 +1,10 @@
-defmodule Echo.Controller do
+defmodule Tango.Controller do
   use GenServer, restart: :temporary
-  alias Echo.Socket
+  alias Tango.Socket
   require Logger
 
   defdelegate start(socket),
-    to: Echo.Controller.DynamicSupervisor
+    to: Tango.Controller.DynamicSupervisor
 
   def start_link(socket) do
     GenServer.start_link(__MODULE__, socket)
@@ -46,12 +46,12 @@ defmodule Echo.Controller do
     |> handle_response()
   end
 
-  @spec handle_response(response :: Echo.Handler.no_reply()) :: {:noreply, Socket.t()}
+  @spec handle_response(response :: Tango.Handler.no_reply()) :: {:noreply, Socket.t()}
   def handle_response({:noreply, socket}) do
     {:noreply, socket}
   end
 
-  @spec handle_response(response :: Echo.Handler.reply()) :: {:noreply, Socket.t()}
+  @spec handle_response(response :: Tango.Handler.reply()) :: {:noreply, Socket.t()}
   def handle_response({:reply, message, %{handler: handler, port: port} = socket}) do
     message = handler.handle_out(message)
 
@@ -62,7 +62,7 @@ defmodule Echo.Controller do
     {:noreply, socket}
   end
 
-  @spec handle_response(response :: Echo.Handler.finish()) :: {:stop, :shutdown, Socket.t()}
+  @spec handle_response(response :: Tango.Handler.finish()) :: {:stop, :shutdown, Socket.t()}
   def handle_response({:exit, response, %{port: port} = socket}) do
     :gen_tcp.send(port, response)
     handle_exit(socket)

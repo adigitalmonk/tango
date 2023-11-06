@@ -1,5 +1,5 @@
-defmodule Echo.Handler do
-  alias Echo.Socket
+defmodule Tango.Handler do
+  alias Tango.Socket
 
   @type reply :: {:reply, binary(), Socket.t()}
   @type no_reply :: {:noreply, Socket.t()}
@@ -14,8 +14,8 @@ defmodule Echo.Handler do
 
   defmacro __using__(_) do
     quote do
-      @behaviour Echo.Handler
-      import Echo.Handler
+      @behaviour Tango.Handler
+      import Tango.Handler
 
       def on_connect(socket), do: {:noreply, socket}
       def on_exit(socket), do: {:noreply, socket}

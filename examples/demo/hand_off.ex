@@ -1,10 +1,10 @@
-defmodule Echo.Demo.HandOff do
+defmodule Tango.Demo.HandOff do
   @moduledoc """
-  A demo Echo handler that shows off changing the handler at runtime.
+  A demo Tango handler that shows off changing the handler at runtime.
   """
-  use Echo.Handler
+  use Tango.Handler
 
   def on_connect(socket) do
-    {:reply, ":: Ready.", %{ socket | handler: Echo.Demo.Mirror }}
+    {:reply, ":: Ready.", %{ socket | handler: Tango.Demo.Mirror }}
   end
 end

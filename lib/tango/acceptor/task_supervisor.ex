@@ -1,5 +1,5 @@
-defmodule Echo.Acceptor.TaskSupervisor do
-  alias Echo.Acceptor
+defmodule Tango.Acceptor.TaskSupervisor do
+  alias Tango.Acceptor
 
   def start_pool(pool_size, tcp_listener, handler) do
     Enum.each(1..pool_size, fn _ ->

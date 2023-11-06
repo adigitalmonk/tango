@@ -1,9 +1,9 @@
-defmodule Echo.Demo.Reverse do
+defmodule Tango.Demo.Reverse do
   @moduledoc """
-  A demo Echo handler that accepts a string, reverses it,
+  A demo Tango handler that accepts a string, reverses it,
   sends it back, the closes the connection.
   """
-  use Echo.Handler
+  use Tango.Handler
 
   def on_connect(socket) do
     {:reply, "... Send me some text", socket}

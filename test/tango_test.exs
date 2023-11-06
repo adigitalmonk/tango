@@ -1,4 +1,4 @@
-defmodule EchoTest do
+defmodule TangoTest do
   use ExUnit.Case
 
   # TBD

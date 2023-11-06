@@ -1,6 +1,6 @@
-defmodule Echo.Controller.DynamicSupervisor do
+defmodule Tango.Controller.DynamicSupervisor do
   use DynamicSupervisor
-  alias Echo.Controller
+  alias Tango.Controller
 
   def start(socket) do
     DynamicSupervisor.start_child(__MODULE__, {Controller, socket})

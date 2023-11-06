@@ -1,6 +1,8 @@
-defmodule Echo.Acceptor do
-  alias Echo.{Controller, Socket}
+defmodule Tango.Acceptor do
+  alias Tango.{Controller, Socket}
   require Logger
+
+  defdelegate start_pool(size, listener, handler), to: Tango.Acceptor.TaskSupervisor
 
   def listen(tcp_listener, handler) do
     tcp_listener

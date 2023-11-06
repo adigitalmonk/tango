@@ -1,8 +1,8 @@
-defmodule Echo.Demo.KV do
+defmodule Tango.Demo.KV do
   @moduledoc """
-  A demo Echo handler that acts like a key/value server
+  A demo Tango handler that acts like a key/value server
   """
-  use Echo.Handler
+  use Tango.Handler
 
   def on_connect(socket) do
     {:reply, ":: Ready.", socket}

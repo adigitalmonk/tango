@@ -1,9 +1,9 @@
-defmodule Echo.MixProject do
+defmodule Tango.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :echo,
+      app: :tango,
       version: "0.1.0",
       elixir: "~> 1.13",
       start_permanent: Mix.env() == :prod,

@@ -1,4 +1,4 @@
-defmodule Echo.Core do
+defmodule Tango.Core do
   use GenServer, restart: :permanent
   require Logger
 
@@ -32,7 +32,7 @@ defmodule Echo.Core do
 
     {:ok, tcp_listener} = :gen_tcp.listen(port, listen_conf)
 
-    Echo.Acceptor.TaskSupervisor.start_pool(
+    Tango.Acceptor.start_pool(
       pool_size,
       tcp_listener,
       handler
