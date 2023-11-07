@@ -26,3 +26,6 @@ tango-*.tar
 /tmp/
 
 **/.DS_Store
+
+.elixir_ls
+.elixir-tools
