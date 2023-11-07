@@ -115,14 +115,14 @@ defmodule Tango.Handler do
       def handle_in(message), do: String.trim(message)
       def handle_out(message), do: message <> "\n"
       def handle_message(_message, socket), do: {:noreply, socket}
-      def handle_parse_error(_error), do: {:noreply, socket}
+      def handle_parse_error(_error, socket), do: {:noreply, socket}
 
       defoverridable on_connect: 1,
                      on_exit: 1,
                      handle_out: 1,
                      handle_in: 1,
                      handle_message: 2,
-                     handle_parse_error: 1
+                     handle_parse_error: 2
     end
   end
 
