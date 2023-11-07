@@ -1,4 +1,5 @@
 defmodule Tango.Acceptor.TaskSupervisor do
+  @moduledoc false
   alias Tango.Acceptor
 
   def start_pool(pool_size, tcp_listener, handler) do

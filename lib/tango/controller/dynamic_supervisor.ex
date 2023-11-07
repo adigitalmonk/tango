@@ -1,4 +1,5 @@
 defmodule Tango.Controller.DynamicSupervisor do
+  @moduledoc false
   use DynamicSupervisor
   alias Tango.Controller
 

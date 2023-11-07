@@ -1,4 +1,5 @@
 defmodule Tango.Controller do
+  @moduledoc false
   use GenServer, restart: :temporary
   alias Tango.Socket
   require Logger
@@ -26,7 +27,7 @@ defmodule Tango.Controller do
     |> case do
       {:error, error} ->
         Logger.error("#{inspect(port)} Decode/#{inspect(error)} :: #{inspect(raw_message)}")
-        {:noreply, socket}
+        handler.handle_parse_error(error)
 
       message ->
         message

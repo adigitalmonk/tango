@@ -1,4 +1,5 @@
 defmodule Tango.Acceptor do
+  @moduledoc false
   alias Tango.{Controller, Socket}
   require Logger
 

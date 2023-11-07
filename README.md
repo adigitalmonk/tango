@@ -16,33 +16,44 @@ Tango is in alpha. If you wanna try it out though, you can install it via git:
 
 ## Usage
 
-Configuration Options
+Tango relies on a handler to connect handle incoming messages.
+
+A very simple "no-op" handler is simply:
 
 ```elixir
-defmodule MyApp.MyTango do
-  use Tango,
-    port: 4040,
-    handler: Tango.Demo.KV,
-    pool_size: 5
+defmodule MyApp.Handler do
+  use Tango.Handler
 end
 ```
+
+The default callbacks are implemented as:
+
+```elixir
+  def on_connect(socket), do: {:noreply, socket}
+  def on_exit(socket), do: {:noreply, socket}
+  def handle_in(message), do: String.trim(message)
+  def handle_out(message), do: message <> "\n"
+  def handle_message(_message, socket), do: {:noreply, socket}
+```
+
+Refer to the Tango.Handler `@moduledoc` for more information on the handlers and what they can do.
+
+There are a few example handlers in the [Examples folder](./examples/).
+
+### Configuration Options
 
 Pass in configuration via the child_spec.
 
-// To Do
-
 ```elixir
 def start(_type, _args) do
-    children = [
-        MyApp.MyTango
-    ]
+  children = [
+    {Tango, handler: MyApp.MyHandler}
+  ]
 
-    # See https://hexdocs.pm/elixir/Supervisor.html
-    # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: MyApp.Supervisor]
-    Supervisor.start_link(children, opts)
-end
+  # ...
 ```
+
+See the `Tango` module doc for more information.
 
 ### Listener Pool
 

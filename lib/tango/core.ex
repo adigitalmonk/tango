@@ -1,20 +1,9 @@
 defmodule Tango.Core do
+  @moduledoc false
   use GenServer, restart: :permanent
   require Logger
 
-  @listen_defaults [
-    :binary,
-    packet: :line,
-    active: true,
-    reuseaddr: true
-  ]
-
-  defp put_defaults(opts) do
-    Keyword.put_new(opts, :port, 2323)
-  end
-
   def start_link(opts) do
-    opts = put_defaults(opts)
     GenServer.start_link(__MODULE__, opts)
   end
 
@@ -23,14 +12,18 @@ defmodule Tango.Core do
   end
 
   def handle_continue(:start, opts) do
-    handler = opts[:handler] || raise "??"
+    handler = opts[:handler]
     port = opts[:port]
-    pool_size = opts[:pool_size] || 1
+    pool_size = opts[:pool_size]
+    packet = opts[:packet]
 
-    listen_conf =
-      Keyword.merge(@listen_defaults, opts[:listen_conf] || [])
-
-    {:ok, tcp_listener} = :gen_tcp.listen(port, listen_conf)
+    {:ok, tcp_listener} =
+      :gen_tcp.listen(port, [
+        :binary,
+        packet: packet,
+        active: true,
+        reuseaddr: true
+      ])
 
     Tango.Acceptor.start_pool(
       pool_size,

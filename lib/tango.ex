@@ -1,41 +1,55 @@
 defmodule Tango do
-  defmacro __using__(opts) do
-    server_port = Keyword.get(opts, :port, 4040)
-    connection_handler = Keyword.get(opts, :handler) || raise "Missing required Handler"
-    packet_type = Keyword.get(opts, :packet, :line)
-    pool_size = Keyword.get(opts, :pool_size, 1)
+  @moduledoc """
+  The base module for Tango.
 
-    quote do
-      use Supervisor
+  Configuration is handled via passing it in your application configuration.
 
-      def start_link(opts \\ []) do
-        name = Keyword.get(opts, :name, __MODULE__)
-        Supervisor.start_link(__MODULE__, opts, name: name)
-      end
+  ```elixir
+  def start(_type, _args) do
+    children = [
+      {Tango, port: 3000, handler: MyApp.MyHandler}
+    ]
 
-      @impl true
-      def init(opts) do
-        tango_opts = [
-          handler: unquote(connection_handler),
-          port: unquote(server_port),
-          packet: unquote(packet_type),
-          pool_size: unquote(pool_size)
-        ]
+    # ...
+  ```
 
-        children = [
-          Tango.Controller.DynamicSupervisor,
-          {Task.Supervisor, name: Tango.Acceptor.TaskSupervisor},
-          {Tango.Core, tango_opts}
-        ]
+  Tango supports the following configuration options:
 
-        supervisor_opts =
-          [
-            strategy: :one_for_one
-          ]
-          |> Keyword.merge(opts)
+  - `:port`
+    - The port to listen to connections on. (optional, defaults to 4040)
+  - `:handler`
+    - A module that implements the Tango.Handler expected callbacks. (required)
+  - `:pool_size`
+    - The number of processes to listen for connections on. (optional, defaults to 1)
+  - `:packet`
+    - This is the packet type to expect on the connection. (optional, defaults to `:line`)
+    - <https://www.erlang.org/doc/man/gen_tcp#type-listen_option>
+  """
 
-        Supervisor.init(children, supervisor_opts)
-      end
-    end
+  use Supervisor
+
+  def start_link(opts \\ []) do
+    name = Keyword.get(opts, :name, __MODULE__)
+    Supervisor.start_link(__MODULE__, opts, name: name)
+  end
+
+  defp put_tango_defaults(opts) do
+    opts
+    |> Keyword.put_new(:port, 4000)
+    |> Keyword.put_new(:pool_size, 1)
+    |> Keyword.put_new(:packet, :line)
+  end
+
+  @impl true
+  def init(opts \\ []) do
+    opts = put_tango_defaults(opts)
+
+    children = [
+      Tango.Controller.DynamicSupervisor,
+      {Task.Supervisor, name: Tango.Acceptor.TaskSupervisor},
+      {Tango.Core, opts}
+    ]
+
+    Supervisor.init(children, strategy: :one_for_one)
   end
 end
