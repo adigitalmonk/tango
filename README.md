@@ -53,12 +53,15 @@ def start(_type, _args) do
   # ...
 ```
 
-See the `Tango` module doc for more information.
+See the `Tango` `@moduledoc`` for more information.
 
 ### Listener Pool
 
-// To Do
-
+By default, Tango will listen for incoming connections one at a time before handing off the connection
+to another process. The hand off happens immediately so this should be sufficient on smaller systems,
+but there is definitely scenarios where you might need more. If that's the case, you can spin up
+as many connections as you need by changing the `pool_size` option.
+Tango will spin up as many listeners as you need.
 
 ### Serialization / Deserialization
 

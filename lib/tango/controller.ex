@@ -27,7 +27,8 @@ defmodule Tango.Controller do
     |> case do
       {:error, error} ->
         Logger.error("#{inspect(port)} Decode/#{inspect(error)} :: #{inspect(raw_message)}")
-        handler.handle_parse_error(error, socket)
+
+        handler.handle_parse_error(raw_message, error, socket)
         |> handle_response()
 
       message ->

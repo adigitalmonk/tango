@@ -1,4 +1,4 @@
-defmodule Tango.HandlerTest do
+defmodule Tango.SocketTest do
   use ExUnit.Case, async: true
   alias Tango.Socket
 

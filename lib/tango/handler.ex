@@ -26,8 +26,41 @@ defmodule Tango.Handler do
     end
   ```
 
+  The `handle_message/2` method is going to be the core of the handler. This callback is responsible
+  for accepting and processing every message sent from the client. It also determines the response
+  to send back to the client for the message.
+
+  ```elixir
+  @type reply :: {:reply, binary(), Socket.t()}
+  @type no_reply :: {:noreply, Socket.t()}
+  @type finish :: {:exit, binary(), Socket.t()} | {:exit, Socket.t()}
+  @callback handle_message(payload :: binary(), socket :: Socket.t()) :: reply | no_reply | finish
+  ```
+
+  ```elixir
+  def handle_message("mums", socket) do
+    # Don't send anything back to the client
+    {:noreply, socket}
+  end
+
+  def handle_message("goodbye", socket) do
+    # Reply to the client with "Bye!", then close the connection
+    {:exit, "Bye!", socket}
+  end
+
+  def handle_message("exit", socket) do
+    # Close the connection without saying anything
+    {:exit, socket}
+  end
+
+  def handle_message(message, socket) do
+    # Reply to the client with the same message they sent (an echo server)
+    {:reply, message, socket}
+  end
+  ```
+
   You can leverage the `handle_in/1` callback for things you want to do consistently for every
-  message (such as deserialization or massaging the data).
+  message, such as deserialization or massaging the data.
 
   ```elixir
     def handle_in(message) do
@@ -53,9 +86,9 @@ defmodule Tango.Handler do
     end
   ```
 
-  Because client input shouldn't be trusted, you can return `{:error, reason}` from `handle_in/1`
+  Because client input isn't always reliable, you can return `{:error, reason}` from `handle_in/1`
   which allows for not processing the input. A parse error is a no-op by default, but you can
-  override `handle_parse_error/1` to change that.
+  override `handle_parse_error/2` to change that.
 
   ```elixir
   def handle_in(_msg) do
@@ -64,6 +97,7 @@ defmodule Tango.Handler do
 
   def handle_parse_error(err, socket) do
     # err  == :specific_error
+    Logger.error("Client \#{socket[:id]} sent invalid data: \#{inspect(err)}")
     {:noreply, socket}
   end
   ```
@@ -89,6 +123,16 @@ defmodule Tango.Handler do
       {:noreply, socket}
     end
   ```
+
+  The handler is set at runtime, so you can actually swap out a socket's handler depending
+  on your needs. The new module only needs to be sure to implement the `Tango.Handler` callbacks.
+
+
+  ```elixir
+  def handle_message(["#swap", "mirror"]) do
+    {:noreply, %{ socket | handler: Tango.Demo.Mirror }}
+  end
+  ```
   """
 
   alias Tango.Socket
@@ -100,7 +144,8 @@ defmodule Tango.Handler do
   @callback on_connect(socket :: Socket.t()) :: reply | no_reply | finish
   @callback on_exit(socket :: Socket.t()) :: reply | no_reply | finish
   @callback handle_message(payload :: binary(), socket :: Socket.t()) :: reply | no_reply | finish
-  @callback handle_parse_error(error :: term(), socket :: Socket.t()) :: reply | no_reply | finish
+  @callback handle_parse_error(message :: term(), error :: term(), socket :: Socket.t()) ::
+              reply | no_reply | finish
 
   @callback handle_out(term()) :: term()
   @callback handle_in(term()) :: term() | {:error, term()}
@@ -115,14 +160,14 @@ defmodule Tango.Handler do
       def handle_in(message), do: String.trim(message)
       def handle_out(message), do: message <> "\n"
       def handle_message(_message, socket), do: {:noreply, socket}
-      def handle_parse_error(_error, socket), do: {:noreply, socket}
+      def handle_parse_error(_message, _error, socket), do: {:noreply, socket}
 
       defoverridable on_connect: 1,
                      on_exit: 1,
                      handle_out: 1,
                      handle_in: 1,
                      handle_message: 2,
-                     handle_parse_error: 2
+                     handle_parse_error: 3
     end
   end
 
