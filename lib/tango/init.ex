@@ -1,4 +1,4 @@
-defmodule Tango.Core do
+defmodule Tango.Init do
   @moduledoc false
   use GenServer, restart: :permanent
   require Logger
@@ -16,21 +16,17 @@ defmodule Tango.Core do
     port = opts[:port]
     pool_size = opts[:pool_size]
     packet = opts[:packet]
+    receive_as = opts[:receive_as]
 
     {:ok, tcp_listener} =
       :gen_tcp.listen(port, [
-        :binary,
+        receive_as,
         packet: packet,
         active: true,
         reuseaddr: true
       ])
 
-    Tango.Acceptor.start_pool(
-      pool_size,
-      tcp_listener,
-      handler
-    )
-
+    Tango.Acceptor.start_pool(pool_size, tcp_listener, handler)
     Logger.debug("Started #{pool_size} listeners on port #{inspect(port)}")
 
     {:noreply, opts}
