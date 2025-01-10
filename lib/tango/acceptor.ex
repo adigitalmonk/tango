@@ -3,7 +3,15 @@ defmodule Tango.Acceptor do
   alias Tango.{Controller, Socket}
   require Logger
 
-  defdelegate start_pool(size, listener, handler), to: Tango.Acceptor.TaskSupervisor
+  def start_pool(pool_size, tcp_listener, handler) do
+    Enum.each(1..pool_size, fn _ ->
+      Task.Supervisor.start_child(
+        __MODULE__,
+        fn -> listen(tcp_listener, handler) end,
+        restart: :temporary
+      )
+    end)
+  end
 
   def listen(tcp_listener, handler) do
     tcp_listener
